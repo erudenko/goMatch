@@ -1,58 +1,46 @@
 package main
 
 import (
+	"log"
 	"time"
 )
 
 type Matcher struct {
-	users map[*User]bool
-
-	register   chan *User
-	unregister chan *User
+	connections map[*User]bool
+	register    chan *User
+	unregister  chan *User
 }
 
-type matchPair struct {
-	user1, user2 *User
+var matcher = Matcher{
+	register:    make(chan *User),
+	unregister:  make(chan *User),
+	connections: make(map[*User]bool),
 }
 
-var sharedMatcher = Matcher{
-	users:      make(map[*User]bool),
-	register:   make(chan *User),
-	unregister: make(chan *User),
-}
-
-func (matcher *Matcher) runLoop() {
-	go matcher.match()
+func (m *Matcher) run() {
+	ticker := time.NewTicker(time.Millisecond * 500)
+	connectionsChanged := false
 	for {
 		select {
-		case user := <-matcher.register:
-			matcher[user] = true
-		case user := <-matcher.unregister:
-			user.dropConnection()
-			delete(matcher.users, user)
+		case u := <-m.register:
+			log.Println("+++registered user: ", u)
+			m.connections[u] = true
+			connectionsChanged = true
+		case u := <-m.unregister:
+			log.Println("---unregistered  user: ", u)
+			delete(m.connections, u)
+			close(u.send)
+		case <-ticker.C:
+			if connectionsChanged {
+				m.match()
+				connectionsChanged = false
+			}
 		}
 	}
+
 }
 
-func newMatchPair(user1, user2 *User) *matchPair {
-	var first *User
-	var second *User
-	if (user1.userID>user2.iserID) {
-		first = user1
-		second = user2
-	} else {
-		first = user2
-		second = user1
-	}
-	return &User(user1:first, user2:second)
-}
+func (m *Matcher) match() {
+	//Do nothing yer
 
-func (matcher *Matcher) match() {
-	//matching map
-	matchingHistory := make(map[matchPair]int)
-	for {
-		//match result is match one user to another with match points
-		matchResult := make(map[matchPair]int)
-		//make copy of current map
-	}
 }
