@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"github.com/gorilla/websocket"
 	"log"
 	"net/http"
@@ -27,8 +28,9 @@ var upgrader = websocket.Upgrader{
 }
 
 type User struct {
-	ws   *websocket.Conn
-	send chan []byte
+	ws     *websocket.Conn
+	send   chan []byte
+	filter UserFilter
 }
 
 // readPump pumps messages from the websocket connection to the hub.
@@ -46,6 +48,13 @@ func (u *User) readPump() {
 			break
 		}
 		log.Println("got message from client:", u, message)
+		filter := UserFilter{}
+		if err = json.Unmarshal(message, &filter); err != nil || len(filter.userID) == 0 {
+			break
+		}
+		u.filter = filter
+		log.Println("got client filter:", u, filter)
+		matcher.register <- u
 		// h.broadcast <- message
 	}
 }
@@ -94,7 +103,7 @@ func serveSocket(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	u := &User{send: make(chan []byte, 256), ws: ws}
-	matcher.register <- u
+	//matcher.register <- u
 	go u.writePump()
 	u.readPump()
 }
