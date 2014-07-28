@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/gorilla/websocket"
 	"log"
 	"net/http"
@@ -34,6 +35,7 @@ type User struct {
 }
 
 // readPump pumps messages from the websocket connection to the hub.
+// {"userID":"123"}
 func (u *User) readPump() {
 	defer func() {
 		matcher.unregister <- u
@@ -47,9 +49,11 @@ func (u *User) readPump() {
 		if err != nil {
 			break
 		}
-		log.Println("got message from client:", u, message)
+		// log.Println("got message from client:", u, message)
 		filter := UserFilter{}
-		if err = json.Unmarshal(message, &filter); err != nil || len(filter.userID) == 0 {
+		if err = json.Unmarshal(message, &filter); err != nil || len(filter.UserID) == 0 {
+			log.Println("error parsing message:", string(message), err)
+			fmt.Printf("wrong formated filter %+v \n", filter)
 			break
 		}
 		u.filter = filter

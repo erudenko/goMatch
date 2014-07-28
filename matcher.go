@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"time"
 )
@@ -17,15 +18,18 @@ var matcher = Matcher{
 	connections: make(map[*User]bool),
 }
 
+var connectMessage = "{\"userID\":\"%s\",\"message\":\"connected\"}"
+
 func (m *Matcher) run() {
 	ticker := time.NewTicker(time.Millisecond * 500)
 	connectionsChanged := false
 	for {
 		select {
 		case u := <-m.register:
-			log.Println("+++registered user: ", u)
+			fmt.Printf("+++registered user: %+v\n", u)
 			m.connections[u] = true
 			connectionsChanged = true
+			u.send <- []byte(fmt.Sprintf(connectMessage, u.filter.UserID))
 		case u := <-m.unregister:
 			log.Println("---unregistered  user: ", u)
 			delete(m.connections, u)

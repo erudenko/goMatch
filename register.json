@@ -1,0 +1,15 @@
+{	
+	"userID": "123123",
+	"provideFilters": {
+		"countryCodes" : ["ru","en"],
+		"gender" : "male",
+		"languageCodes": ["ru"],
+		"interests":["business","music"]
+	},
+	"requestsFilters": {
+		"countryCodes" : ["ru","en"],
+		"gender" : "female",
+		"languageCodes": ["ru"],
+		"interests":["business","music"]
+	}
+}
