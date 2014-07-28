@@ -45,6 +45,19 @@ func (m *Matcher) run() {
 }
 
 func (m *Matcher) match() {
-	//Do nothing yer
+	//Do nothing yet
+	matchResults := make(map[*User]*User)
+	for user, registered := range m.connections {
+		//if we already match users with the criterias, skip it
+		_, exists := matchResults[user]
+		submatchResults := make(map[*User]int)
+		if !exists && registered {
+			for user2, registered := range m.connections {
+				if user2 != user && registered {
+					submatchResults[user2] = user.match(user2)
+				}
+			}
+		}
+	}
 
 }

@@ -93,6 +93,53 @@ func (u *User) writePump() {
 		}
 	}
 }
+func (u *User) match(user2 *User) int {
+	//todo - count intersaction of sex, interests and so on
+	// the rules
+	// 1. gender
+	// 		1.1 if requested filters match both +10
+	//		1.2 if requested filters match one  not pointed +6
+	//		1.3 if requested filters no match both not pointed +2
+	//		1.4 if requested filters no match one pointed  -1000 (not match this users)
+	//		1.4 if requested filters no match both pointed -1000 (not match this users)
+	// 2. language codes
+	//		2.1 if requested filters match both +10
+	//		2.2 if requested filters match one not pointed +6
+	//		2.3 if requested filters match both not pointed +2
+	//		2.4 if requested filters no match one pointed -1000 (not match this users)
+	//		2.5 if requested filters no match both pointed -1000 (not match this users)
+	// 3. country codes
+	//		3.1 if requested filters match both +8
+	//		3.2 if requested filters match one not pointed +4
+	//		3.3 if requested filters match both not pointed +2
+	//		3.4 if requested filters no match one pointed -1000 (not match this users)
+	//		3.5 if requested filters no match both pointed -1000 (not match this users)
+	// 4. interests codes
+	//		4.1 +2 for every matched interests
+	mark := 0
+	mark += u.matchGender(user2)
+	return mark
+}
+
+func (u *User) matchGender(user2 *User) int {
+	mark := 0
+	if u.filter.RequestFilters.Gender != "" && user2.filter.RequestFilters.Gender != "" &&
+		u.filter.ProvideFilters.Gender == user2.filter.RequestFilters.Gender &&
+		user2.filter.ProvideFilters.Gender == u.filter.RequestFilters.Gender {
+		mark = 10
+	} else if u.filter.RequestFilters.Gender != "" && user2.filter.RequestFilters.Gender == "" &&
+		user2.filter.ProvideFilters.Gender == u.filter.RequestFilters.Gender {
+		mark = 6
+	} else if user2.filter.RequestFilters.Gender != "" && u.filter.RequestFilters.Gender == "" &&
+		u.filter.ProvideFilters.Gender == user2.filter.RequestFilters.Gender {
+		mark = 6
+	} else if user2.filter.RequestFilters.Gender == "" && u.filter.RequestFilters.Gender == "" {
+		mark = 2
+	} else {
+		mark = -1000
+	}
+	return mark
+}
 
 func serveSocket(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "GET" {
