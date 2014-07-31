@@ -118,6 +118,9 @@ func (u *User) match(user2 *User) int {
 	//		4.1 +2 for every matched interests
 	mark := 0
 	mark += u.matchGender(user2)
+	mark += u.matchLanguage(user2)
+	mark += u.matchCountry(user2)
+	mark += u.matchInterests(user2)
 	return mark
 }
 
@@ -139,6 +142,88 @@ func (u *User) matchGender(user2 *User) int {
 		mark = -1000
 	}
 	return mark
+}
+
+func (u *User) matchLanguage(user2 *User) int {
+	mark := 0
+	requested1 := u.filter.RequestFilters.LanguageCodes
+	requested2 := user2.filter.RequestFilters.LanguageCodes
+	provided1 := u.filter.ProvideFilters.LanguageCodes
+	provided2 := user2.filter.ProvideFilters.LanguageCodes
+	mutual1 := mutual(requested1, provided2)
+	mutual2 := mutual(requested2, provided1)
+
+	if len(requested1) == 0 && len(requested2) == 0 {
+		mark = 2
+	} else if len(mutual1) > 0 && len(mutual2) > 0 {
+		mark = 6
+		mark += len(mutual1) * 2
+		mark += len(mutual2) * 2
+	} else if len(requested1) == 0 && len(mutual2) > 0 {
+		mark = 4
+		mark += len(mutual2) * 2
+	} else if len(requested2) == 0 && len(mutual1) > 0 {
+		mark = 4
+		mark += len(mutual1) * 2
+	} else {
+		mark = -1000
+	}
+	return mark
+}
+
+func (u *User) matchCountry(user2 *User) int {
+	mark := 0
+	requested1 := u.filter.RequestFilters.CountryCodes
+	requested2 := user2.filter.RequestFilters.CountryCodes
+	provided1 := u.filter.ProvideFilters.CountryCodes
+	provided2 := user2.filter.ProvideFilters.CountryCodes
+	mutual1 := mutual(requested1, provided2)
+	mutual2 := mutual(requested2, provided1)
+
+	if len(requested1) == 0 && len(requested2) == 0 {
+		mark = 2
+	} else if len(mutual1) > 0 && len(mutual2) > 0 {
+		mark = 4
+		mark += len(mutual1) * 2
+		mark += len(mutual2) * 2
+	} else if len(requested1) == 0 && len(mutual2) > 0 {
+		mark = 2
+		mark += len(mutual2) * 2
+	} else if len(requested2) == 0 && len(mutual1) > 0 {
+		mark = 2
+		mark += len(mutual1) * 2
+	} else {
+		mark = -1000
+	}
+	return mark
+}
+
+func (u *User) matchInterests(user2 *User) int {
+	mark := 0
+	provided1 := u.filter.ProvideFilters.Interests
+	provided2 := user2.filter.ProvideFilters.Interests
+	mutual := mutual(provided1, provided2)
+	mark = len(mutual) * 2
+}
+
+func mutual(slice1 []string, slice2 []string) []string {
+	diffStr := []string{}
+	m := map[string]int{}
+
+	for _, s1Val := range slice1 {
+		m[s1Val] = 1
+	}
+	for _, s2Val := range slice2 {
+		m[s2Val] = m[s2Val] + 1
+	}
+
+	for mKey, mVal := range m {
+		if mVal > 1 {
+			diffStr = append(diffStr, mKey)
+		}
+	}
+
+	return diffStr
 }
 
 func serveSocket(w http.ResponseWriter, r *http.Request) {
