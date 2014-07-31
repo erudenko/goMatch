@@ -4,61 +4,7 @@ import (
 	"testing"
 )
 
-func constructUser1() *User {
-	user := new(User)
-	return user
-
-}
-
-func constructUser2() *User {
-	user := new(User)
-	return user
-
-}
-
-func constructFilter1() *UserFilter {
-	filter := new(UserFilter)
-	return filter
-
-}
-
-func constructFilterDetails1() *FilterDetails {
-	filterDetails := new(FilterDetails)
-	filterDetails.Gender = "male"
-	filterDetails.CountryCodes = []string{"ru", "ua", "en"}
-	filterDetails.LanguageCodes = []string{"au", "nz", "ua"}
-	filterDetails.Interests = []string{"business", "fashion"}
-	return filterDetails
-}
-
-func constructFilterDetails2() *FilterDetails {
-	filterDetails := new(FilterDetails)
-	filterDetails.Gender = "male"
-	filterDetails.CountryCodes = []string{"ru", "ua", "en"}
-	filterDetails.LanguageCodes = []string{"au", "nz", "ua"}
-	filterDetails.Interests = []string{"business", "fashion"}
-	return filterDetails
-}
-
-func constructFilterDetails3() *FilterDetails {
-	filterDetails := new(FilterDetails)
-	filterDetails.Gender = "male"
-	filterDetails.CountryCodes = []string{"ru", "ua", "en"}
-	filterDetails.LanguageCodes = []string{"au", "nz", "ua"}
-	filterDetails.Interests = []string{"business", "fashion"}
-	return filterDetails
-}
-
-func constructFilterDetails4() *FilterDetails {
-	filterDetails := new(FilterDetails)
-	filterDetails.Gender = "male"
-	filterDetails.CountryCodes = []string{"ru", "ua", "en"}
-	filterDetails.LanguageCodes = []string{"au", "nz", "ua"}
-	filterDetails.Interests = []string{"business", "fashion"}
-	return filterDetails
-}
-
-func TestMatchGenderNotSet(t *testing.T) {
+func TestMatchLanguageNotSet(t *testing.T) {
 	user1 := constructUser1()
 	user2 := constructUser2()
 	mark := user1.matchGender(user2)
@@ -68,86 +14,97 @@ func TestMatchGenderNotSet(t *testing.T) {
 	}
 }
 
-func TestMatchGenderOneSet(t *testing.T) {
+func TestMatchLanguageOneSet(t *testing.T) {
 	user1 := constructUser1()
 	user1.filter = *new(UserFilter)
-	user1.filter.RequestFilters.Gender = "male"
+	user1.filter.RequestFilters = *constructFilterDetails1()
 	user2 := constructUser2()
-	mark := user1.matchGender(user2)
+	mark := user1.matchLanguage(user2)
 	if mark != -1000 {
 		t.Logf("match result: %i", mark)
 		t.FailNow()
 	}
 }
 
-func TestMatchGenderOneSetReverse(t *testing.T) {
+func TestMatchLanguageOneSetReverse(t *testing.T) {
 	user1 := constructUser1()
 	user2 := constructUser2()
 	user2.filter = *new(UserFilter)
-	user2.filter.RequestFilters.Gender = "male"
-
-	mark := user1.matchGender(user2)
+	user2.filter.RequestFilters = *constructFilterDetails1()
+	mark := user1.matchLanguage(user2)
 	if mark != -1000 {
 		t.Logf("match result: %i", mark)
 		t.FailNow()
 	}
 }
 
-func TestMatchGenderOneSetAndMatch(t *testing.T) {
+func TestMatchLanguageMatchBoth(t *testing.T) {
 	user1 := constructUser1()
 	user1.filter = *new(UserFilter)
-	user1.filter.RequestFilters.Gender = "male"
+	user1.filter.RequestFilters = *constructFilterDetails1()
+	user1.filter.ProvideFilters = *constructFilterDetails2()
 	user2 := constructUser2()
 	user2.filter = *new(UserFilter)
-	user2.filter.ProvideFilters.Gender = "male"
-	mark := user1.matchGender(user2)
-	if mark != 6 {
+	user2.filter.RequestFilters = *constructFilterDetails2()
+	user2.filter.ProvideFilters = *constructFilterDetails1()
+	mark := user1.matchLanguage(user2)
+	if mark != 18 {
 		t.Logf("match result: %i", mark)
 		t.FailNow()
 	}
 }
 
-func TestMatchGenderOneSetAndMatchReverse(t *testing.T) {
-	user2 := constructUser1()
-	user2.filter = *new(UserFilter)
-	user2.filter.RequestFilters.Gender = "male"
-	user1 := constructUser2()
+func TestMatchLanguageUnMatchBoth(t *testing.T) {
+	user1 := constructUser1()
 	user1.filter = *new(UserFilter)
-	user1.filter.ProvideFilters.Gender = "male"
-	mark := user1.matchGender(user2)
-	if mark != 6 {
+	user1.filter.RequestFilters = *constructFilterDetails1()
+	user1.filter.ProvideFilters = *constructFilterDetails2()
+	user2 := constructUser2()
+	user2.filter = *new(UserFilter)
+	user2.filter.RequestFilters = *constructFilterDetails1()
+	user2.filter.ProvideFilters = *constructFilterDetails2()
+	mark := user1.matchLanguage(user2)
+	if mark != -1000 {
 		t.Logf("match result: %i", mark)
 		t.FailNow()
 	}
 }
 
-func TestMatchGenderBothSet(t *testing.T) {
-	user1 := constructUser2()
+func TestMatchLanguageMatchOneNotSetOther(t *testing.T) {
+	user1 := constructUser1()
 	user1.filter = *new(UserFilter)
-	user1.filter.ProvideFilters.Gender = "male"
-	user1.filter.RequestFilters.Gender = "female"
-	user2 := constructUser1()
+	user1.filter.ProvideFilters = *constructFilterDetails1()
+	user2 := constructUser2()
 	user2.filter = *new(UserFilter)
-	user2.filter.ProvideFilters.Gender = "female"
-	user2.filter.RequestFilters.Gender = "male"
-	mark := user1.matchGender(user2)
+	user2.filter.RequestFilters = *constructFilterDetails1()
+	mark := user1.matchLanguage(user2)
 	if mark != 10 {
 		t.Logf("match result: %i", mark)
 		t.FailNow()
 	}
 }
 
-func TestMatchGenderBothSetReverse(t *testing.T) {
-	user2 := constructUser2()
-	user2.filter = *new(UserFilter)
-	user2.filter.ProvideFilters.Gender = "male"
-	user2.filter.RequestFilters.Gender = "female"
+func TestMatchLanguageMatchOneNotSetOtherPartly(t *testing.T) {
 	user1 := constructUser1()
 	user1.filter = *new(UserFilter)
-	user1.filter.ProvideFilters.Gender = "female"
-	user1.filter.RequestFilters.Gender = "male"
-	mark := user1.matchGender(user2)
-	if mark != 10 {
+	user1.filter.ProvideFilters = *constructFilterDetails1()
+	user2 := constructUser2()
+	user2.filter = *new(UserFilter)
+	user2.filter.RequestFilters = *constructFilterDetails3()
+	mark := user1.matchLanguage(user2)
+	if mark != 6 {
+		t.Logf("match result: %i", mark)
+		t.FailNow()
+	}
+}
+
+func TestMatchLanguageMatchBothNotSet(t *testing.T) {
+	user1 := constructUser1()
+	user1.filter = *new(UserFilter)
+	user2 := constructUser2()
+	user2.filter = *new(UserFilter)
+	mark := user1.matchLanguage(user2)
+	if mark != 2 {
 		t.Logf("match result: %i", mark)
 		t.FailNow()
 	}

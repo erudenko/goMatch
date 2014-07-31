@@ -27,7 +27,7 @@ func constructFilterDetails1() *FilterDetails {
 	filterDetails.Gender = "male"
 	filterDetails.CountryCodes = []string{"ru", "ua", "en"}
 	filterDetails.LanguageCodes = []string{"au", "nz", "ua"}
-	filterDetails.Interests = []string{"business", "fashion"}
+	filterDetails.Interests = []string{"business", "fashion", "food"}
 	return filterDetails
 }
 
@@ -35,8 +35,8 @@ func constructFilterDetails2() *FilterDetails {
 	filterDetails := new(FilterDetails)
 	filterDetails.Gender = "male"
 	filterDetails.CountryCodes = []string{"ru", "ua", "en"}
-	filterDetails.LanguageCodes = []string{"au", "nz", "ua"}
-	filterDetails.Interests = []string{"business", "fashion"}
+	filterDetails.LanguageCodes = []string{"gb", "ab", "th"}
+	filterDetails.Interests = []string{"business", "fashion", "food"}
 	return filterDetails
 }
 
@@ -44,8 +44,8 @@ func constructFilterDetails3() *FilterDetails {
 	filterDetails := new(FilterDetails)
 	filterDetails.Gender = "male"
 	filterDetails.CountryCodes = []string{"ru", "ua", "en"}
-	filterDetails.LanguageCodes = []string{"au", "nz", "ua"}
-	filterDetails.Interests = []string{"business", "fashion"}
+	filterDetails.LanguageCodes = []string{"au", "nzz", "uaa"}
+	filterDetails.Interests = []string{"business2", "fashion2", "food2"}
 	return filterDetails
 }
 

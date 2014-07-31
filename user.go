@@ -204,6 +204,7 @@ func (u *User) matchInterests(user2 *User) int {
 	provided2 := user2.filter.ProvideFilters.Interests
 	mutual := mutual(provided1, provided2)
 	mark = len(mutual) * 2
+	return mark
 }
 
 func mutual(slice1 []string, slice2 []string) []string {
