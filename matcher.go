@@ -54,10 +54,16 @@ func (m *Matcher) match() {
 		if !exists && registered {
 			for user2, registered := range m.connections {
 				if user2 != user && registered {
-					submatchResults[user2] = user.match(user2)
+					submatchResults[user2] = user.match(user2) //we have all matched results for thsi user
 				}
 			}
 		}
+		//sort matches
+		//1. build field already matched users
+		//2. sort,  decreasing priority of users, that was matched before
+		//3. build matching pairs list using priorities
+		//4. return result for matching users
+		//5. disconnect that users
 	}
 
 }
