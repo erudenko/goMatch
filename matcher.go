@@ -21,7 +21,7 @@ var matcher = Matcher{
 var connectMessage = "{\"userID\":\"%s\",\"message\":\"connected\"}"
 
 func (m *Matcher) run() {
-	ticker := time.NewTicker(time.Millisecond * 500)
+	ticker := time.NewTicker(time.Millisecond * 1000) //match every second
 	connectionsChanged := false
 	for {
 		select {
